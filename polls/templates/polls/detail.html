@@ -1,6 +1,21 @@
 <h1>{{ question.question_text }}</h1>
-<u1>
-{% for choice in question.choice_set.all %} 
-    <li> {{ choice.choice_text }} </li>
-{% endfor %}
-</u1>
+{% if error_message %}<p> {{ error_message }}</p>{% endif %}
+
+<form action="{% url 'polls:vote' question.id %}" method="post">
+    {% csrf_token %} <!-- 위조 요청(해킹)을 방지하기 위한 코드 -->
+    <fieldset>
+        <legend><h1>{{ question.question_text }}</h1></legend>
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+        {% for choice in question.choice_set.all %}
+            <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+            <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
+        {% endfor %}
+    </fieldset>
+    <input type="submit" value="Vote">
+</form>
+
+<!-- 
+    사용자가 submit 타입의 input tag를 누르면, 
+    해당 url polls:vote로 데이터가 전달되고, views.vote에서 데이터를 처리한다.
+    method="post"는 REST API 중 하나를 의미한다. 
+-->
